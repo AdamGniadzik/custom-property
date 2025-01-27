@@ -1,4 +1,4 @@
-package com.example.customproperty;
+package com.example.api;
 
 public enum CustomPropertyType {
     LONG_VALUE,
@@ -7,3 +7,4 @@ public enum CustomPropertyType {
     BOOLEAN_VALUE,
     DOUBLE_VALUE
 }
+

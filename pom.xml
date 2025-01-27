@@ -87,7 +87,6 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-
                             <jdbc>
                                 <driver>${db.driver}</driver>
                                 <url>${db.url}</url>
@@ -95,6 +94,16 @@
                                 <password>${db.password}</password>
                             </jdbc>
                             <generator>
+                                <strategy>
+                                    <matchers>
+                                    <tables>
+                                        <table>
+                                            <expression>.*_custom_property</expression>
+                                            <recordImplements>com.example.db.CustomPropertyValueRecord</recordImplements>
+                                        </table>
+                                    </tables>
+                                    </matchers>
+                                </strategy>
                                 <database>
                                     <inputSchema>public</inputSchema>
                                 </database>
@@ -106,6 +115,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
+                </configuration>
             </plugin>
         </plugins>
     </build>
