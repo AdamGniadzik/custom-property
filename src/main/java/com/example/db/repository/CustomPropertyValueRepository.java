@@ -8,7 +8,7 @@ import com.example.db.generated.tables.records.CustomPropertyRecord;
 import com.example.db.generated.tables.records.ItemRecord;
 import com.example.db.generated.tables.records.PersonRecord;
 import lombok.AllArgsConstructor;
-import org.jooq.DSLContext;
+import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.TableImpl;
 import org.springframework.stereotype.Repository;
@@ -16,15 +16,18 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+
+
 @AllArgsConstructor
 @Repository
 public class CustomPropertyValueRepository {
 
+    private static final Map<Class<? extends Record>, TableImpl<? extends CustomPropertyValueRecord>> classMapping = createMapping();
     private final DSLContext dslContext;
 
-
-    private static final Map<Class<? extends Record>, TableImpl<? extends CustomPropertyValueRecord>> classMapping = createMapping();
-    private static Map<Class<? extends Record>, TableImpl<? extends CustomPropertyValueRecord>> createMapping(){
+    private static Map<Class<? extends Record>, TableImpl<? extends CustomPropertyValueRecord>> createMapping() {
         Map<Class<? extends Record>, TableImpl<? extends CustomPropertyValueRecord>> map = new HashMap<>();
         map.put(ItemRecord.class, ItemCustomProperty.ITEM_CUSTOM_PROPERTY);
         map.put(PersonRecord.class, PersonCustomProperty.PERSON_CUSTOM_PROPERTY);
@@ -49,4 +52,23 @@ public class CustomPropertyValueRepository {
         };
         step.execute();
     }
+
+
+    public Result<Record> getCustomPropertyValueByCode(Class<? extends Record> recordClass, Long objectId, String customPropertyCode) {
+        var table = classMapping.get(recordClass);
+        return dslContext.select().from(table.join(Tables.CUSTOM_PROPERTY)
+                .on(table.field(getCpIdField(table)).eq(Tables.CUSTOM_PROPERTY.ID)))
+                .where(Tables.CUSTOM_PROPERTY.CODE.eq(customPropertyCode))
+                .and(table.field(getObjectIdField(table)).eq(objectId))
+                .fetch();
+    }
+
+    private Field<Long> getCpIdField(TableImpl<? extends CustomPropertyValueRecord> table) {
+        return field(name(table.getName(), "custom_property_id"), Long.class);
+    }
+
+    private Field<Long> getObjectIdField(TableImpl<? extends CustomPropertyValueRecord> table) {
+        return field(name(table.getName(), "object_id"), Long.class);
+    }
+
 }

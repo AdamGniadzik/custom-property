@@ -1,4 +1,4 @@
-package com.example.domain;
+package com.example.domain.customproperty;
 
 
 import com.example.api.CustomPropertyType;

@@ -1,9 +1,11 @@
 package com.example.domain.customproperty;
 
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
-class CustomPropertyValue {
+public class CustomPropertyValue {
     private Long customPropertyId;
     private Long objectId;
     private Long longValue;
