@@ -1,10 +1,7 @@
 package com.example.domain.customproperty;
 
-
-import com.example.api.CustomPropertyType;
-
 enum CustomPropertyCodes {
-    CODE_SIZE(CustomPropertyType.INTEGER_VALUE);
+    CODE_SIZE(CustomPropertyType.INTEGER);
 
     final CustomPropertyType type;
 

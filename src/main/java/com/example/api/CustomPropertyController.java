@@ -1,22 +1,29 @@
 package com.example.api;
 
-import com.example.db.generated.tables.records.ItemRecord;
-import com.example.db.generated.tables.records.PersonRecord;
-import com.example.db.repository.CustomPropertyValueRepository;
+import com.example.api.request.CreateCustomPropertyBindingRequest;
+import com.example.api.request.CreateCustomPropertyRequest;
+import com.example.domain.customproperty.CustomPropertyService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("/")
 @AllArgsConstructor
 public class CustomPropertyController {
 
-    private final CustomPropertyValueRepository customPropertyValueRepository;
+    private final CustomPropertyService customPropertyService;
+    private final CustomPropertyMapper mapper;
 
-    @GetMapping("/")
-    public void insertTestValue() {
-        customPropertyValueRepository.createCustomPropertyValue(ItemRecord.class, 1l, "CODE_SIZE", "Value");
-        customPropertyValueRepository.createCustomPropertyValue(ItemRecord.class, 1l, "ADDITIONAL_SIZE", 1);
-        customPropertyValueRepository.createCustomPropertyValue(PersonRecord.class, 1l, "CODE_SIZE", "Value");
+    @PostMapping("/")
+    public CustomPropertyDto createCustomProperty(CreateCustomPropertyRequest request) {
+        return mapper.mapCustomProperty(customPropertyService.createCustomProperty(request.code(), request.type()));
     }
+
+    @PostMapping("/binding")
+    public CustomPropertyBindingDto createCustomPropertyBinding(CreateCustomPropertyBindingRequest request) {
+        return mapper.mapCustomPropertyBindingDto(customPropertyService.createCustomPropertyBinding(request.code(),
+                request.entityName(), request.enabled()));
+    }
+
+
 }

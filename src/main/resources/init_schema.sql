@@ -26,6 +26,9 @@ CREATE TABLE custom_property_bindings
 (
     class_name         varchar NOT NULL,
     custom_property_id bigint  NOT NULL,
+    enabled            boolean NOT NULL,
+    created_at         timestamp    NOT NULL,
+    updated_at         timestamp    NOT NULL,
     CONSTRAINT primary_key primary key (class_name, custom_property_id),
     CONSTRAINT fk_custom_property_id FOREIGN KEY (custom_property_id) REFERENCES custom_property (id)
         ON UPDATE CASCADE ON DELETE CASCADE
@@ -78,7 +81,7 @@ VALUES (1, 'CODE_SIZE', 'STRING'),
        (3, 'IS_ITEM_DAMAGED', 'BOOLEAN');
 
 INSERT INTO custom_property_bindings
-VALUES ('Item.class', 1),
-       ('Item.class', 2),
-       ('Item.class', 3),
-       ('Person.class', 1);
+VALUES ('Item.class', 1, true, now(), now()),
+       ('Item.class', 2, true, now(), now()),
+       ('Item.class', 3, true, now(), now()),
+       ('Person.class', 1, true, now(), now());

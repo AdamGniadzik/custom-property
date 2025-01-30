@@ -1,6 +1,4 @@
 package com.example.domain.customproperty;
 
-class CustomProperty {
-    private String code;
-    private CustomPropertyType type;
+public record CustomProperty(String code, CustomPropertyType type) {
 }
