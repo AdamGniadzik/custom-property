@@ -1,7 +1,15 @@
 package com.example.api;
 
-import org.springframework.web.bind.annotation.RestController;
+import com.example.domain.customproperty.CustomPropertyService;
+import com.example.domain.person.Person;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
-public class PersonController {
+@Controller
+@RequestMapping(value = "/person")
+public class PersonController extends AbstractCustomPropertyValueController {
+    public PersonController(CustomPropertyService customPropertyService) {
+        super(Person.class, customPropertyService);
+    }
+
 }

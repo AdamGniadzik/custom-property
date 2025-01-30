@@ -51,10 +51,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
@@ -100,6 +96,10 @@
                                         <table>
                                             <expression>.*_custom_property</expression>
                                             <recordImplements>com.example.db.CustomPropertyValueRecord</recordImplements>
+                                        </table>
+                                        <table>
+                                            <expression>item|person</expression>
+                                            <recordImplements>com.example.db.CustomizableEntityRecord</recordImplements>
                                         </table>
                                     </tables>
                                     </matchers>
