@@ -1,0 +1,29 @@
+POST localhost:8080/item/
+
+###
+
+# localhost:8080/item/{id}/cp/{code}
+GET localhost:8080/item/1/cp/CODE_SIZE
+
+###
+
+POST localhost:8080/item/1/cp
+Content-type: application/json
+
+{
+  "code": "CODE_SIZE",
+  "value": "NEW_VALUE"
+}
+
+###
+
+PUT localhost:8080/item/1/cp
+Content-type: application/json
+
+{
+  "code": "CODE_SIZE",
+  "value": "Znow bedzie chuj nie rajd"
+}
+
+
+

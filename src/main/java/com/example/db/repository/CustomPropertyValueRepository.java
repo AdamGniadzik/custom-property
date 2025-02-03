@@ -2,6 +2,7 @@ package com.example.db.repository;
 
 import com.example.db.CustomPropertyValueRecord;
 import com.example.db.CustomizableEntityRecord;
+import com.example.db.ObjectNotFoundException;
 import com.example.db.generated.Tables;
 import com.example.db.generated.tables.ItemCustomProperty;
 import com.example.db.generated.tables.PersonCustomProperty;
@@ -23,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.*;
 
 @AllArgsConstructor
 @Repository
@@ -37,6 +37,7 @@ public class CustomPropertyValueRepository {
     private static final String BOOLEAN_VALUE_COL = "long_value";
     private static final String CUSTOM_PROPERTY_ID_COL = "custom_property_id";
     private static final String OBJECT_ID_COL = "object_id";
+
     private final DSLContext dslContext;
 
     private static Map<Class<? extends Record>, TableImpl<? extends CustomPropertyValueRecord>> createMapping() {
@@ -46,37 +47,73 @@ public class CustomPropertyValueRepository {
         return map;
     }
 
-    public void createCustomPropertyValue(Class<? extends Record> recordClass, Long objectId, String customPropertyCode, Object value) {
+    public CustomPropertyValue createOrUpdateCustomPropertyValue(Class<? extends DomainCustomizableEntity> entityClass, Long objectId, String customPropertyCode, Object value) {
         CustomPropertyRecord cp = dslContext.select().from(Tables.CUSTOM_PROPERTY)
                 .where(Tables.CUSTOM_PROPERTY.CODE.eq(customPropertyCode))
                 .fetchSingle().into(Tables.CUSTOM_PROPERTY);
-        var table = classMapping.get(recordClass);
-        var step = dslContext.insertInto(table)
-                .set(table.fieldsRow().field(CUSTOM_PROPERTY_ID_COL, Long.class), cp.getId())
-                .set(table.fieldsRow().field(OBJECT_ID_COL, Long.class), objectId);
-        step = switch (cp.getType()) {
-            case "LONG" -> step.set(table.fieldsRow().field(LONG_VALUE_COL, Long.class), (Long) value);
-            case "DECIMAL" -> step.set(table.fieldsRow().field(DOUBLE_VALUE_COL, Double.class), (Double) value);
-            case "BOOLEAN" -> step.set(table.fieldsRow().field(BOOLEAN_VALUE_COL, Boolean.class), (Boolean) value);
-            case "STRING" -> step.set(table.fieldsRow().field(STRING_VALUE_COL, String.class), (String) value);
-            case "INTEGER" -> step.set(table.fieldsRow().field(INTEGER_VALUE_COL, Integer.class), (Integer) value);
+        var table = classMapping.get(getEntityRecordByDomainClassName(entityClass));
+        var ifExist = dslContext.fetchExists(table, table.fieldsRow().field(CUSTOM_PROPERTY_ID_COL, Long.class)
+                        .eq(cp.getId()),
+                table.fieldsRow().field(OBJECT_ID_COL, Long.class).eq(cp.getId()));
+        if (ifExist) {
+            return updateCustomPropertyValue(table, objectId, cp, value);
+        } else {
+            return createCustomPropertyValue(table, objectId, cp, value);
+        }
+    }
+
+    public CustomPropertyValue createCustomPropertyValue(Class<? extends DomainCustomizableEntity> entityClass, Long objectId, String customPropertyCode, Object value) {
+        CustomPropertyRecord cp = dslContext.select().from(Tables.CUSTOM_PROPERTY)
+                .where(Tables.CUSTOM_PROPERTY.CODE.eq(customPropertyCode))
+                .fetchSingle().into(Tables.CUSTOM_PROPERTY);
+        var table = classMapping.get(getEntityRecordByDomainClassName(entityClass));
+        return createCustomPropertyValue(table, objectId, cp, value);
+    }
+
+    private CustomPropertyValue updateCustomPropertyValue(Table<? extends CustomPropertyValueRecord> table, Long objectId, CustomPropertyRecord cp, Object value) {
+        var firstStep = dslContext.update(table);
+        var step = switch (cp.getType()) {
+            case "LONG" -> firstStep.set(table.fieldsRow().field(LONG_VALUE_COL, Long.class), (Long) value);
+            case "DECIMAL" -> firstStep.set(table.fieldsRow().field(DOUBLE_VALUE_COL, Double.class), (Double) value);
+            case "BOOLEAN" -> firstStep.set(table.fieldsRow().field(BOOLEAN_VALUE_COL, Boolean.class), (Boolean) value);
+            case "STRING" -> firstStep.set(table.fieldsRow().field(STRING_VALUE_COL, String.class), (String) value);
+            case "INTEGER" -> firstStep.set(table.fieldsRow().field(INTEGER_VALUE_COL, Integer.class), (Integer) value);
             default -> throw new RuntimeException("Invalid custom property type");
         };
-        step.execute();
+        return step.where(table.fieldsRow().field(CUSTOM_PROPERTY_ID_COL, Long.class).eq(cp.getId()))
+                .and(table.fieldsRow().field(OBJECT_ID_COL, Long.class).eq(objectId)).
+                returning().fetchSingle().map(record -> mapCustomPropertyValue(record, cp.getCode()));
+
+    }
+
+    private CustomPropertyValue createCustomPropertyValue(Table<? extends CustomPropertyValueRecord> table, Long objectId, CustomPropertyRecord cp, Object value) {
+        var firstStep = dslContext.insertInto(table)
+                .set(table.fieldsRow().field(CUSTOM_PROPERTY_ID_COL, Long.class), cp.getId())
+                .set(table.fieldsRow().field(OBJECT_ID_COL, Long.class), objectId);
+        var step = switch (cp.getType()) {
+            case "LONG" -> firstStep.set(table.fieldsRow().field(LONG_VALUE_COL, Long.class), (Long) value);
+            case "DECIMAL" -> firstStep.set(table.fieldsRow().field(DOUBLE_VALUE_COL, Double.class), (Double) value);
+            case "BOOLEAN" -> firstStep.set(table.fieldsRow().field(BOOLEAN_VALUE_COL, Boolean.class), (Boolean) value);
+            case "STRING" -> firstStep.set(table.fieldsRow().field(STRING_VALUE_COL, String.class), (String) value);
+            case "INTEGER" -> firstStep.set(table.fieldsRow().field(INTEGER_VALUE_COL, Integer.class), (Integer) value);
+            default -> throw new RuntimeException("Invalid custom property type");
+        };
+        return step.returning().fetchSingle().map(this::mapCustomPropertyValue);
     }
 
     public CustomPropertyValue getCustomPropertyValueByCode(Class<? extends DomainCustomizableEntity> recordClass, Long objectId, String customPropertyCode) {
         var table = classMapping.get(getEntityRecordByDomainClassName(recordClass));
-        return dslContext.select().from(table.join(Tables.CUSTOM_PROPERTY)
+        return dslContext.select(table, Tables.CUSTOM_PROPERTY.CODE).from(table.join(Tables.CUSTOM_PROPERTY)
                         .on(Objects.requireNonNull(table.field(getCpIdField(table))).eq(Tables.CUSTOM_PROPERTY.ID)))
                 .where(Tables.CUSTOM_PROPERTY.CODE.eq(customPropertyCode))
                 .and(Objects.requireNonNull(table.field(getObjectIdField(table))).eq(objectId))
-                .fetch().map(this::mapCustomPropertyValue).stream().findFirst().orElseThrow();
+                .fetch().map(this::mapCustomPropertyValue).stream().findFirst()
+                .orElseThrow(ObjectNotFoundException::new);
     }
 
     public List<CustomPropertyValue> getCustomPropertyValue(Class<? extends DomainCustomizableEntity> recordClass, Long objectId) {
         var table = classMapping.get(getEntityRecordByDomainClassName(recordClass));
-        return dslContext.select().from(table.join(Tables.CUSTOM_PROPERTY)
+        return dslContext.select().from(table.leftOuterJoin(Tables.CUSTOM_PROPERTY)
                         .on(Objects.requireNonNull(table.field(getCpIdField(table))).eq(Tables.CUSTOM_PROPERTY.ID)))
                 .where(Objects.requireNonNull(table.field(getObjectIdField(table))).eq(objectId))
                 .fetch().map(this::mapCustomPropertyValue).stream().toList();
@@ -92,7 +129,18 @@ public class CustomPropertyValueRepository {
 
     private CustomPropertyValue mapCustomPropertyValue(Record record) {
         return CustomPropertyValue.builder()
-                .customPropertyCode(record.get(Tables.CUSTOM_PROPERTY.CODE))
+                .customPropertyCode((String) record.get(CUSTOM_PROPERTY_ID_COL))
+                .doubleValue((Double) record.get(DOUBLE_VALUE_COL))
+                .stringValue((String) record.get(STRING_VALUE_COL))
+                .integerValue((Integer) record.get(INTEGER_VALUE_COL))
+                .booleanValue((Boolean) record.get(BOOLEAN_VALUE_COL))
+                .objectId((Long) record.get(OBJECT_ID_COL))
+                .longValue((Long) record.get(LONG_VALUE_COL)).build();
+    }
+
+    private CustomPropertyValue mapCustomPropertyValue(Record record, String code) {
+        return CustomPropertyValue.builder()
+                .customPropertyCode(code)
                 .doubleValue((Double) record.get(DOUBLE_VALUE_COL))
                 .stringValue((String) record.get(STRING_VALUE_COL))
                 .integerValue((Integer) record.get(INTEGER_VALUE_COL))

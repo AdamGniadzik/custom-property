@@ -4,10 +4,12 @@ import com.example.api.request.CreateCustomPropertyBindingRequest;
 import com.example.api.request.CreateCustomPropertyRequest;
 import com.example.domain.customproperty.CustomPropertyService;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController("/")
+@Controller
+@RequestMapping("/cp")
 @AllArgsConstructor
 public class CustomPropertyController {
 

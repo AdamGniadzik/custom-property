@@ -25,6 +25,14 @@ public class CustomPropertyService {
         return customPropertyValueRepository.getCustomPropertyValue(clazz, objectId);
     }
 
+    public CustomPropertyValue createCustomPropertyValue(Class<? extends DomainCustomizableEntity> clazz, Long objectId, String code, Object value){
+        return customPropertyValueRepository.createCustomPropertyValue(clazz, objectId, code, value);
+    }
+
+    public CustomPropertyValue createOrUpdateCustomPropertyValue(Class<? extends DomainCustomizableEntity> clazz, Long objectId, String code, Object value){
+        return customPropertyValueRepository.createOrUpdateCustomPropertyValue(clazz, objectId, code, value);
+    }
+
     public CustomProperty createCustomProperty(String code, String type) {
         return customPropertyRepository.createCustomProperty(code, type);
     }

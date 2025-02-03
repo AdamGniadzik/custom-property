@@ -2,22 +2,22 @@ DROP TABLE IF EXISTS custom_property, item, item_custom_property, custom_propert
 
 CREATE TABLE item
 (
-    id         bigint NOT NULL PRIMARY KEY,
-    created_at DATE   NOT NULL,
-    updated_at DATE   NOT NULL
+    id         bigserial NOT NULL PRIMARY KEY,
+    created_at timestamp   NOT NULL,
+    updated_at timestamp   NOT NULL
 );
 
 CREATE TABLE person
 (
-    id         bigint NOT NULL PRIMARY KEY,
-    created_at DATE   NOT NULL,
-    updated_at DATE   NOT NULL
+    id         bigserial NOT NULL PRIMARY KEY,
+    created_at timestamp   NOT NULL,
+    updated_at timestamp   NOT NULL
 );
 
 
 CREATE TABLE custom_property
 (
-    id   bigint       NOT NULL PRIMARY KEY,
+    id   bigserial       NOT NULL PRIMARY KEY,
     code VARCHAR(100) NOT NULL,
     type VARCHAR(100) NOT NULL
 );
@@ -66,19 +66,19 @@ CREATE TABLE person_custom_property
     CONSTRAINT fk_cp FOREIGN KEY (custom_property_id) REFERENCES custom_property (id)
 );
 
-INSERT INTO item
-VALUES (1, now(), now()),
-       (2, now(), now()),
-       (3, now(), now());
+INSERT INTO item (created_at, updated_at)
+VALUES ( now(), now()),
+       ( now(), now()),
+       ( now(), now());
 
-INSERT INTO person
-VALUES (1, now(), now());
+INSERT INTO person (created_at, updated_at)
+VALUES ( now(), now());
 
 
-INSERT INTO custom_property
-VALUES (1, 'CODE_SIZE', 'STRING'),
-       (2, 'ADDITIONAL_SIZE', 'INTEGER'),
-       (3, 'IS_ITEM_DAMAGED', 'BOOLEAN');
+INSERT INTO custom_property (code, type)
+VALUES ( 'CODE_SIZE', 'STRING'),
+       ( 'ADDITIONAL_SIZE', 'INTEGER'),
+       ( 'IS_ITEM_DAMAGED', 'BOOLEAN');
 
 INSERT INTO custom_property_bindings
 VALUES ('Item.class', 1, true, now(), now()),

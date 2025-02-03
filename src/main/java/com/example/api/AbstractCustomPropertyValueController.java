@@ -1,12 +1,12 @@
 package com.example.api;
+
+import com.example.api.request.CreateCustomPropertyValueRequest;
 import com.example.domain.DomainCustomizableEntity;
 import com.example.domain.customproperty.CustomPropertyService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 public abstract class AbstractCustomPropertyValueController {
 
     protected final CustomPropertyService customPropertyService;
@@ -24,13 +24,28 @@ public abstract class AbstractCustomPropertyValueController {
     @RequestMapping(value = "/{id}/cp/{code}", method = RequestMethod.GET)
     @ResponseBody
     private CustomPropertyValueDto getCustomPropertyValueByCode(@PathVariable Long id, @PathVariable String code) {
-        return mapper.mapCustomPropertyValue(customPropertyService.getCustomPropertyValueByCodeAndObjectId(typeParameterClass, id, code));
+        return mapper.mapCustomPropertyValue(customPropertyService
+                .getCustomPropertyValueByCodeAndObjectId(typeParameterClass, id, code));
     }
 
     @RequestMapping(value = "/{id}/cp", method = RequestMethod.GET)
     @ResponseBody
-    private List<CustomPropertyValueDto> getCustomPropertyValueByCode(@PathVariable Long id) {
+    private List<CustomPropertyValueDto> getCustomPropertyValues(@PathVariable Long id) {
         return customPropertyService.getCustomPropertyValueByObjectId(typeParameterClass, id)
                 .stream().map(mapper::mapCustomPropertyValue).toList();
+    }
+
+    @RequestMapping(value = "/{id}/cp", method = RequestMethod.POST)
+    @ResponseBody
+    private CustomPropertyValueDto createCustomPropertyValue(@PathVariable Long id, @RequestBody CreateCustomPropertyValueRequest request) {
+        return mapper.mapCustomPropertyValue(customPropertyService
+                .createCustomPropertyValue(typeParameterClass, id, request.code(), request.value()));
+    }
+
+    @RequestMapping(value = "/{id}/cp", method = RequestMethod.PUT)
+    @ResponseBody
+    private CustomPropertyValueDto createOrUpdateCustomPropertyValue(@PathVariable Long id, @RequestBody CreateCustomPropertyValueRequest request) {
+        return mapper.mapCustomPropertyValue(customPropertyService
+                .createOrUpdateCustomPropertyValue(typeParameterClass, id, request.code(), request.value()));
     }
 }
