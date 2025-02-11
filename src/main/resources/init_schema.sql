@@ -19,7 +19,8 @@ CREATE TABLE custom_property
 (
     id   bigserial       NOT NULL PRIMARY KEY,
     code VARCHAR(100) NOT NULL,
-    type VARCHAR(100) NOT NULL
+    type VARCHAR(100) NOT NULL,
+    UNIQUE (code)
 );
 
 CREATE TABLE custom_property_bindings

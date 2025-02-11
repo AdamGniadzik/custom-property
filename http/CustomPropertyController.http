@@ -1,0 +1,21 @@
+POST localhost:8080/cp/
+Content-Type: application/json
+# Types: LONG, INTEGER, STRING, DOUBLE, BOOLEAN
+
+{
+   "code": "NEW_CP_CODE2",
+   "type": "LONG"
+}
+###
+
+
+POST localhost:8080/cp/binding
+Content-Type: application/json
+
+
+{
+  "code": "NEW_CP_CODE2",
+  "entityName": "Item",
+  "enabled": true
+}
+###

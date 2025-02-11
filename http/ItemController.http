@@ -21,8 +21,8 @@ PUT localhost:8080/item/1/cp
 Content-type: application/json
 
 {
-  "code": "CODE_SIZE",
-  "value": "Znow bedzie chuj nie rajd"
+  "code": "CODE_SIZE_2",
+  "value": "CREATE_OR_UPDATE"
 }
 
 
