@@ -2,8 +2,13 @@ POST localhost:8080/person/
 
 ###
 
-# localhost:8080/item/{id}/cp/{code}
+# localhost:8080/person/{id}/cp/{code}
 GET localhost:8080/person/1/cp/CODE_SIZE
+
+###
+
+# localhost:8080/person/{id}/cp/{code}
+GET localhost:8080/person/1/cp
 
 ###
 
@@ -11,8 +16,8 @@ POST localhost:8080/person/1/cp
 Content-type: application/json
 
 {
-  "code": "CODE_SIZE",
-  "value": "NEW_VALUE"
+  "code": "NEW_CP_CODE234",
+  "value": 121
 }
 
 ###
@@ -24,4 +29,6 @@ Content-type: application/json
   "code": "CODE_SIZE_2",
   "value": "CREATE_OR_UPDATE"
 }
+
+
 
