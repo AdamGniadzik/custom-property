@@ -44,7 +44,7 @@ public class CustomPropertyRepository {
         }
         CustomPropertyRecord cp = fetchCustomPropertyRecordByCode(code);
         return mapCustomPropertyBinding(dslContext.insertInto(Tables.CUSTOM_PROPERTY_BINDINGS)
-                .set(Tables.CUSTOM_PROPERTY_BINDINGS.CLASS_NAME, entity.getName())
+                .set(Tables.CUSTOM_PROPERTY_BINDINGS.CLASS_NAME, entity.getSimpleName())
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.CUSTOM_PROPERTY_ID, cp.getId())
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.CREATED_AT, LocalDateTime.now())
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.UPDATED_AT, LocalDateTime.now())

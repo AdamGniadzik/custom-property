@@ -3,6 +3,7 @@ package com.example.api;
 import com.example.db.exceptions.CustomPropertyBindingNotExistsOrIsDisabled;
 import com.example.db.exceptions.CustomPropertyNotExistsException;
 import com.example.db.DatabaseConflictException;
+import com.example.db.exceptions.DomainException;
 import com.example.db.exceptions.DuplicatedCustomPropertyCodeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +21,6 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
             = { Exception.class })
     protected ResponseEntity<Object> handleUnexpectedError(
             Exception ex, WebRequest request) {
-        log.error(ex.getMessage());
         return handleExceptionInternal(ex, "Unexpected error",
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
@@ -29,25 +29,22 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
             = { org.jooq.exception.NoDataFoundException.class })
     protected ResponseEntity<Object> handleDataNotFoundException(
             Exception ex, WebRequest request) {
-        log.error(ex.getMessage());
         return handleExceptionInternal(ex, "Invalid request, check correctness of provided data.",
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value
-            = { CustomPropertyBindingNotExistsOrIsDisabled.class, CustomPropertyNotExistsException.class, CustomPropertyNotExistsException.class, DuplicatedCustomPropertyCodeException.class})
+            = { DomainException.class})
     protected ResponseEntity<Object> handleCustomPropertyExceptions(
-            Exception ex, WebRequest request) {
-        log.error(ex.getMessage());
+            DomainException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),
-                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+                new HttpHeaders(), ex.getStatus(), request);
     }
 
     @ExceptionHandler(value
             = { DatabaseConflictException.class })
     protected ResponseEntity<Object> handleDatabaseConflict(
             Exception ex, WebRequest request) {
-        log.error(ex.getMessage());
         return handleExceptionInternal(ex, ex.getMessage(),
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }

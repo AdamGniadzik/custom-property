@@ -3,7 +3,7 @@ Content-Type: application/json
 # Types: LONG, INTEGER, STRING, DOUBLE, BOOLEAN
 
 {
-   "code": "NEW_CP_CODE2",
+   "code": "NEW_CP_CODE234",
    "type": "LONG"
 }
 ###
@@ -14,7 +14,7 @@ Content-Type: application/json
 
 
 {
-  "code": "NEW_CP_CODE2",
+  "code": "NEW_CP_CODE234",
   "entityName": "Item",
   "enabled": true
 }

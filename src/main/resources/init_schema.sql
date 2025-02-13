@@ -82,7 +82,7 @@ VALUES ( 'CODE_SIZE', 'STRING'),
        ( 'IS_ITEM_DAMAGED', 'BOOLEAN');
 
 INSERT INTO custom_property_bindings
-VALUES ('Item.class', 1, true, now(), now()),
-       ('Item.class', 2, true, now(), now()),
-       ('Item.class', 3, true, now(), now()),
-       ('Person.class', 1, true, now(), now());
+VALUES ('Item', 1, true, now(), now()),
+       ('Item', 2, true, now(), now()),
+       ('Item', 3, true, now(), now()),
+       ('Person', 1, true, now(), now());

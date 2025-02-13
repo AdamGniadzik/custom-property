@@ -21,7 +21,7 @@ public class CustomPropertyService {
         return customPropertyValueRepository.getCustomPropertyValueByCode(clazz, objectId, code);
     }
 
-    public List<CustomPropertyValue> getCustomPropertyValueByObjectId(Class<? extends DomainCustomizableEntity> clazz, Long objectId) {
+    public List<CustomPropertyValue> getCustomPropertyValuesByObjectId(Class<? extends DomainCustomizableEntity> clazz, Long objectId) {
         return customPropertyValueRepository.getCustomPropertyValue(clazz, objectId);
     }
 

@@ -1,22 +1,19 @@
 package com.example.db.exceptions;
 
-public class DomainException extends RuntimeException{
-    public DomainException() {
-    }
+import org.springframework.http.HttpStatus;
 
-    public DomainException(String message) {
+public class DomainException extends RuntimeException {
+
+    private final HttpStatus status;
+
+
+    public DomainException(String message, HttpStatus status) {
         super(message);
+        this.status = status;
     }
 
-    public DomainException(String message, Throwable cause) {
-        super(message, cause);
+    public HttpStatus getStatus() {
+        return status;
     }
 
-    public DomainException(Throwable cause) {
-        super(cause);
-    }
-
-    public DomainException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

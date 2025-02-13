@@ -31,7 +31,7 @@ public abstract class AbstractCustomPropertyValueController {
     @RequestMapping(value = "/{id}/cp", method = RequestMethod.GET)
     @ResponseBody
     private List<CustomPropertyValueDto> getCustomPropertyValues(@PathVariable Long id) {
-        return customPropertyService.getCustomPropertyValueByObjectId(typeParameterClass, id)
+        return customPropertyService.getCustomPropertyValuesByObjectId(typeParameterClass, id)
                 .stream().map(mapper::mapCustomPropertyValue).toList();
     }
 
