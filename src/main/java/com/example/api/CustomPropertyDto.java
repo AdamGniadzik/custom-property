@@ -1,4 +1,4 @@
 package com.example.api;
 
 
-record CustomPropertyDto(String code, String type) {}
+record CustomPropertyDto(Long id, String code, String type) {}

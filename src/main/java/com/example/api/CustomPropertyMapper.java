@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 class CustomPropertyMapper {
     CustomPropertyDto mapCustomProperty(CustomProperty customProperty){
-        return new CustomPropertyDto(customProperty.code(), customProperty.type().name());
+        return new CustomPropertyDto(customProperty.id(), customProperty.code(), customProperty.type().name());
     }
 
     CustomPropertyValueDto mapCustomPropertyValue(CustomPropertyValue value){

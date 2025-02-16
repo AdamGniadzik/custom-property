@@ -3,7 +3,7 @@ Content-Type: application/json
 # Types: LONG, INTEGER, STRING, DOUBLE, BOOLEAN
 
 {
-   "code": "NEW_CP_CODE234",
+   "code": "NEW_CP_CODE2345",
    "type": "LONG"
 }
 ###
@@ -18,4 +18,15 @@ Content-Type: application/json
   "entityName": "Item",
   "enabled": true
 }
+
 ###
+
+PUT localhost:8080/cp/binding
+Content-Type: application/json
+
+
+{
+"code": "NEW_CP_CODE234",
+"entityName": "Item",
+"enabled": true
+}

@@ -25,11 +25,11 @@ public class CustomPropertyService {
         return customPropertyValueRepository.getCustomPropertyValue(clazz, objectId);
     }
 
-    public CustomPropertyValue createCustomPropertyValue(Class<? extends DomainCustomizableEntity> clazz, Long objectId, String code, Object value){
+    public CustomPropertyValue createCustomPropertyValue(Class<? extends DomainCustomizableEntity> clazz, Long objectId, String code, Object value) {
         return customPropertyValueRepository.createCustomPropertyValue(clazz, objectId, code, value);
     }
 
-    public CustomPropertyValue createOrUpdateCustomPropertyValue(Class<? extends DomainCustomizableEntity> clazz, Long objectId, String code, Object value){
+    public CustomPropertyValue createOrUpdateCustomPropertyValue(Class<? extends DomainCustomizableEntity> clazz, Long objectId, String code, Object value) {
         return customPropertyValueRepository.createOrUpdateCustomPropertyValue(clazz, objectId, code, value);
     }
 
@@ -37,8 +37,18 @@ public class CustomPropertyService {
         return customPropertyRepository.createCustomProperty(code, type);
     }
 
-    public CustomPropertyBinding createCustomPropertyBinding(String code,  String className, boolean enabled) {
-        return customPropertyRepository.createCustomPropertyBinding(code, getDomainCustomizableEntityName(className), enabled);
+    public CustomPropertyBinding createCustomPropertyBinding(String code, String className, boolean enabled) {
+        CustomProperty cp = customPropertyRepository.getCustomProperty(code);
+        return customPropertyRepository.createCustomPropertyBinding(cp, getDomainCustomizableEntityName(className), enabled);
+    }
+
+    public List<CustomProperty> getAllCustomProperties() {
+        return customPropertyRepository.getCustomPropertyList();
+    }
+
+    public CustomPropertyBinding updateCustomPropertyBinding(String code, String className, boolean enabled) {
+        CustomProperty cp = customPropertyRepository.getCustomProperty(code);
+        return customPropertyRepository.updateCustomPropertyBinding(cp, getDomainCustomizableEntityName(className), enabled);
     }
 
     private Class<? extends DomainCustomizableEntity> getDomainCustomizableEntityName(String className) {

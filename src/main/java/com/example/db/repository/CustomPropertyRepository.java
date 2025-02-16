@@ -1,5 +1,7 @@
 package com.example.db.repository;
 
+import com.example.db.ObjectNotFoundException;
+import com.example.db.exceptions.CustomPropertyNotExistsException;
 import com.example.db.exceptions.DuplicatedCustomPropertyBindingException;
 import com.example.db.exceptions.DuplicatedCustomPropertyCodeException;
 import com.example.db.generated.Tables;
@@ -11,13 +13,11 @@ import com.example.domain.customproperty.CustomPropertyBinding;
 import com.example.domain.customproperty.CustomPropertyType;
 import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Result;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 @AllArgsConstructor
@@ -36,20 +36,27 @@ public class CustomPropertyRepository {
                 .into(CustomPropertyRecord.class));
     }
 
-    public CustomPropertyBinding createCustomPropertyBinding(String code, Class<? extends DomainCustomizableEntity> entity, Boolean enabled) {
-        if (dslContext.fetchExists(Tables.CUSTOM_PROPERTY_BINDINGS.join(Tables.CUSTOM_PROPERTY)
-                .on(Tables.CUSTOM_PROPERTY.ID.eq(Tables.CUSTOM_PROPERTY_BINDINGS.CUSTOM_PROPERTY_ID)), Tables.CUSTOM_PROPERTY.CODE.eq(code)
-                .and(Tables.CUSTOM_PROPERTY_BINDINGS.CLASS_NAME.eq(entity.getName())))) {
-            throw new DuplicatedCustomPropertyBindingException(code, entity.getSimpleName());
+    public CustomPropertyBinding createCustomPropertyBinding(CustomProperty cp, Class<? extends DomainCustomizableEntity> entity, Boolean enabled) {
+        if (dslContext.fetchExists(Tables.CUSTOM_PROPERTY_BINDINGS,
+                Tables.CUSTOM_PROPERTY_BINDINGS.CLASS_NAME.eq(entity.getSimpleName()))) {
+            throw new DuplicatedCustomPropertyBindingException(cp.code(), entity.getSimpleName());
         }
-        CustomPropertyRecord cp = fetchCustomPropertyRecordByCode(code);
         return mapCustomPropertyBinding(dslContext.insertInto(Tables.CUSTOM_PROPERTY_BINDINGS)
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.CLASS_NAME, entity.getSimpleName())
-                .set(Tables.CUSTOM_PROPERTY_BINDINGS.CUSTOM_PROPERTY_ID, cp.getId())
+                .set(Tables.CUSTOM_PROPERTY_BINDINGS.CUSTOM_PROPERTY_ID, cp.id())
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.CREATED_AT, LocalDateTime.now())
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.UPDATED_AT, LocalDateTime.now())
                 .set(Tables.CUSTOM_PROPERTY_BINDINGS.ENABLED, enabled).returning().fetchSingle()
-                .into(CustomPropertyBindingsRecord.class), cp.getCode());
+                .into(CustomPropertyBindingsRecord.class), cp.code());
+    }
+
+    public CustomPropertyBinding updateCustomPropertyBinding(CustomProperty cp, Class<? extends DomainCustomizableEntity> entity, Boolean enabled) {
+        return mapCustomPropertyBinding(dslContext.update(Tables.CUSTOM_PROPERTY_BINDINGS)
+                .set(Tables.CUSTOM_PROPERTY_BINDINGS.ENABLED, enabled)
+                .set(Tables.CUSTOM_PROPERTY_BINDINGS.UPDATED_AT, LocalDateTime.now())
+                .where(Tables.CUSTOM_PROPERTY_BINDINGS.CUSTOM_PROPERTY_ID.eq(cp.id())
+                        .and(Tables.CUSTOM_PROPERTY_BINDINGS.CLASS_NAME.eq(entity.getSimpleName())))
+                .returning().fetchSingle().into(CustomPropertyBindingsRecord.class), cp.code());
     }
 
 
@@ -58,14 +65,17 @@ public class CustomPropertyRepository {
                 .map(this::mapCustomProperty);
     }
 
-    private CustomPropertyRecord fetchCustomPropertyRecordByCode(String code) {
-        return dslContext.select().from(Tables.CUSTOM_PROPERTY).where(Tables.CUSTOM_PROPERTY.CODE.eq(code))
-                .fetchSingle().into(Tables.CUSTOM_PROPERTY);
+    @Cacheable("cp")
+    public CustomProperty getCustomProperty(String code) {
+        return dslContext.select().from(Tables.CUSTOM_PROPERTY)
+                .where(Tables.CUSTOM_PROPERTY.CODE.eq(code)).fetchOptional()
+                .map(r -> mapCustomProperty(r.into(CustomPropertyRecord.class)))
+                .orElseThrow(() -> new CustomPropertyNotExistsException(code));
     }
 
 
     private CustomProperty mapCustomProperty(CustomPropertyRecord record) {
-        return new CustomProperty(record.getCode(), CustomPropertyType.valueOf(record.getType()));
+        return new CustomProperty(record.getId(), record.getCode(), CustomPropertyType.valueOf(record.getType()));
     }
 
     private CustomPropertyBinding mapCustomPropertyBinding(CustomPropertyBindingsRecord record, String code) {
